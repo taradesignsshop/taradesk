@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tara Desk</title>
+<meta name="theme-color" content="#72123e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tara Desk">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="appbar" id="appbar">
+  <img class="appbar-logo" src="assets/star.png" alt="">
+  <div class="appbar-t"><h1 id="barTitle">Quote</h1><span id="barSub">Tara Designs</span></div>
+  <div class="bar-sync"><span class="dot" id="syncDot"></span><span id="syncTxt">Starting…</span></div>
+</header>
+
+<nav class="bnav" id="nav" aria-label="Main">
+  <button type="button" data-v="quote" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h1M12 12h1M16 12h0M8 16h1M12 16h1M16 16h0"/></svg><span>Quote</span></button>
+  <button type="button" data-v="invoice" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M12 11v6M9 14h6"/></svg><span>Invoice</span></button>
+  <button type="button" data-v="history" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Invoices</span></button>
+  <button type="button" data-v="designs" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Designs</span></button>
+  <button type="button" id="navMore" data-v="more" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>More</span></button>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="moreSheet" role="dialog" aria-label="More" hidden>
+  <div class="grab"></div>
+  <div class="sheet-list">
+    <button type="button" data-v="dues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4z"/><path d="M4 7l12-3v3M16 14h2"/></svg><span>Dues<small>Who owes what</small></span></button>
+    <button type="button" data-v="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.3c1.8.8 3 2.6 3 5.7"/></svg><span>Customers<small>Phone numbers and history</small></span></button>
+    <button type="button" data-v="rates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg><span>Rates<small>Price list items</small></span></button>
+    <button type="button" data-v="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><span>Reports<small>Sales and collections</small></span></button>
+    <button type="button" data-v="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>Settings<small>Shop details, Sheet connection</small></span></button>
+  </div>
+</div>
+
+<button class="fab" id="fabNew" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M12 11v6M9 14h6"/></svg><span>New invoice</span></button>
+
+<!-- ===================== QUOTE ===================== -->
+<div class="shell view single on" id="v-quote">
+  <div class="panel">
+    <div class="eyebrow">Quick quote</div>
+    <h2>What should we charge?</h2>
+    <div class="field"><label for="qCode">Design code</label><input id="qCode" class="bigin" list="designList" placeholder="e.g. B16" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></div>
+    <div id="qChips" class="chips"></div>
+    <div class="grid2">
+      <div class="field"><label for="qQty">Pieces</label><input id="qQty" inputmode="numeric" value="1"></div>
+      <div class="field"><label for="qExtra">Extra % (tricky fabric, rush)</label><input id="qExtra" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <details class="manual"><summary>Design not in the catalog? Enter stitches</summary>
+      <div class="grid2" style="margin-top:10px">
+        <div class="field"><label for="qSt">Stitch count</label><input id="qSt" inputmode="numeric"></div>
+        <div class="field"><label for="qCol">Colour changes</label><input id="qCol" inputmode="numeric" placeholder="0"></div>
+      </div>
+    </details>
+  </div>
+  <div id="qResult"></div>
+</div>
+
+<!-- ===================== NEW INVOICE ===================== -->
+<div class="shell view" id="v-invoice">
+  <div class="tabseg" id="invTabs" role="tablist"><button type="button" data-t="form" aria-pressed="true">Details</button><button type="button" data-t="prev" aria-pressed="false">Preview</button></div>
+  <div class="form-col">
+    <div id="lockbar" class="lockbar" hidden></div>
+    <div class="panel">
+      <div class="eyebrow">This invoice</div>
+      <h2>Invoice details</h2>
+      <div class="grid2">
+        <div class="field"><label for="fNumber">Invoice no.</label><input id="fNumber" readonly></div>
+        <div class="field"><label for="fDate">Date</label><input id="fDate" type="date"></div>
+      </div>
+      <div class="field"><label for="fName">Bill to — customer name</label><input id="fName" list="custList" autocomplete="off"></div>
+      <datalist id="custList"></datalist>
+      <div class="grid2">
+        <div class="field"><label for="fPhone">Customer phone</label><input id="fPhone" inputmode="tel" autocomplete="off"></div>
+        <div class="field"><label for="fDue">Due date (optional)</label><input id="fDue" type="date"></div>
+      </div>
+      <div class="field"><label for="fAddr">Customer address (optional)</label><textarea id="fAddr" rows="2"></textarea></div>
+    </div>
+
+    <div class="panel">
+      <h2>Items</h2>
+      <datalist id="rateList"></datalist>
+      <div class="items-head"><span>Description</span><span style="text-align:right">Qty</span><span style="text-align:right">Rate ₹</span><span></span></div>
+      <div id="itemRows"></div>
+      <button class="btn small" id="addItem" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add item</button>
+      <div class="field" style="margin-top:14px"><label for="fDisc">Discount ₹</label><input id="fDisc" inputmode="decimal" placeholder="0"></div>
+      <div class="field"><label for="fSpecial">Special term for this invoice (optional)</label><input id="fSpecial" placeholder="e.g. Delivery within 5 days of advance" autocomplete="off"></div>
+      <div class="field"><label for="fNotes">Other note (optional)</label><textarea id="fNotes" rows="2"></textarea></div>
+    </div>
+
+    <div class="panel">
+      <h2>Order &amp; payment</h2>
+      <div class="grid2">
+        <div class="field"><label for="fDesign">Design / logo name</label><input id="fDesign" list="designList" autocomplete="off"></div>
+      <datalist id="designList"></datalist>
+      <div id="fDesignQuote" class="qhint" hidden></div>
+        <div class="field"><label for="fStitch">Stitch count</label><input id="fStitch" autocomplete="off"></div>
+        <div class="field"><label for="fFabric">Fabric</label><input id="fFabric" autocomplete="off"></div>
+        <div class="field"><label for="fDelivery">Delivery date</label><input id="fDelivery" type="date"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="fAdvLabel">Less: label</label><input id="fAdvLabel" placeholder="Advance received" autocomplete="off"></div>
+        <div class="field"><label for="fAdv">Less: amount ₹</label><input id="fAdv" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <p class="hint">Leave the order fields blank and that strip won't print. <a href="#" id="browseDesigns" style="color:var(--maroon);font-weight:600">Browse designs</a></p>
+    </div>
+  </div>
+
+  <div class="preview-col">
+    <div class="preview-head">
+      <div><div class="eyebrow">Live preview</div><p>One A5 copy. The PDF has the Original and Customer copies side by side on A4.</p></div>
+      <div class="seg" id="themeSeg" role="group" aria-label="Burgundy shade">
+        <button type="button" data-t="brand"><i style="background:#72123e"></i>Brand</button>
+        <button type="button" data-t="deep"><i style="background:#430a24"></i>Deep</button>
+      </div>
+    </div>
+    <div class="stage"><div class="stage-inner" id="stage"></div></div>
+    <p class="hint">Print the PDF at <b>100% / Actual size</b> on A4 (no “fit to page”), then cut along the dashed line.</p>
+  </div>
+</div>
+
+<!-- ===================== HISTORY ===================== -->
+<div class="shell view single" id="v-history">
+  <div class="panel">
+    <div class="eyebrow">From your Google Sheet</div>
+    <h2>Invoices</h2>
+    <div id="history"><p class="empty">Loading…</p></div>
+    <div class="actions"><button class="btn small ghost" id="btnRefresh" type="button">Refresh</button></div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div class="shell view single" id="v-settings">
+  <div class="panel">
+    <div class="eyebrow">Backend</div>
+    <h2>Connection</h2>
+    <div class="field"><label for="cUrl">Web app URL (ends in /exec)</label><input id="cUrl" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label for="cToken">Access token</label><input id="cToken" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="actions"><button class="btn small primary" id="btnConnect" type="button">Save &amp; test</button></div>
+    <p class="hint" id="connMsg">Entered once per device. Treat the token like a password.</p>
+  </div>
+  <div class="panel">
+    <h2>Shop details</h2>
+    <div class="field"><label for="sAddr">Shop address</label><textarea id="sAddr" rows="2"></textarea></div>
+    <div class="grid2">
+      <div class="field"><label for="sPhone">Phone / WhatsApp</label><input id="sPhone"></div>
+      <div class="field"><label for="sEmail">Email</label><input id="sEmail"></div>
+      <div class="field"><label for="sWeb">Website</label><input id="sWeb"></div>
+      <div class="field"><label for="sInsta">Instagram</label><input id="sInsta"></div>
+    </div>
+    <div class="field"><label for="sServices">Services line (printed at the bottom)</label><input id="sServices"></div>
+    <div class="field"><label for="sPay">Extra payment details (optional, printed under notes)</label><textarea id="sPay" rows="2" placeholder="e.g. Bank transfer details"></textarea></div>
+    <div class="field"><label for="sTerms">Terms</label><textarea id="sTerms" rows="2"></textarea></div>
+    <p class="hint">Shop details are stored on this device. The UPI QR on invoices is the one built into the app.</p>
+  </div>
+</div>
+
+
+<!-- ===================== DUES ===================== -->
+<div class="shell view single" id="v-dues">
+  <div class="panel">
+    <div class="eyebrow">Pending payments</div>
+    <h2>Dues <span id="duesTotal" class="chip Unpaid" hidden></span></h2>
+    <div id="duesList"><p class="empty">Loading…</p></div>
+  </div>
+</div>
+
+<!-- ===================== DESIGNS ===================== -->
+<div class="shell view single" id="v-designs">
+  <div class="panel">
+    <div class="eyebrow">Design library</div>
+    <h2>Designs</h2>
+    <div class="grid2">
+      <div class="field"><label for="dSearch">Search</label><input id="dSearch" placeholder="Name or category" autocomplete="off"></div>
+      <div class="field"><label for="dCat">Category</label><select id="dCat" class="sel"></select></div>
+    </div>
+    <p class="hint" id="dCount"></p>
+    <div id="designGrid" class="dgrid"></div>
+    <div class="actions"><button class="btn small ghost" id="dMore" type="button" hidden>Show more</button></div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOMERS ===================== -->
+<div class="shell view single" id="v-customers">
+  <div class="panel">
+    <div class="eyebrow">Customers</div>
+    <h2>Customers</h2>
+    <div class="field"><label for="cSearch">Search</label><input id="cSearch" placeholder="Name or phone" autocomplete="off"></div>
+    <div id="custListView"></div>
+  </div>
+  <div class="panel">
+    <h2>Add customer</h2>
+    <div class="field"><label for="nName">Name</label><input id="nName" autocomplete="off"></div>
+    <div class="field"><label for="nPhone">Phone</label><input id="nPhone" inputmode="tel" autocomplete="off"></div>
+    <div class="field"><label for="nAddr">Address</label><textarea id="nAddr" rows="2"></textarea></div>
+    <button class="btn small primary" id="btnAddCust" type="button">Save customer</button>
+  </div>
+</div>
+
+<!-- ===================== RATES ===================== -->
+<div class="shell view single" id="v-rates">
+  <div class="panel">
+    <div class="eyebrow">Saved items</div>
+    <h2>Rate card</h2>
+    <p class="hint" style="margin:0 0 12px">Items here appear as suggestions on the invoice and fill in their rate.</p>
+    <div id="rateRows"></div>
+    <button class="btn small" id="btnAddRate" type="button">Add item</button>
+  </div>
+  <div class="panel">
+    <div class="eyebrow">Pricing formula</div>
+    <h2>Embroidery pricing</h2>
+    <p class="hint" style="margin:0 0 10px"><b>Machine time</b> = stitches ÷ speed + colour changes × minutes each.<br><b>Price per piece</b> = handling + machine time × hourly rate, never less than the minimum, rounded up.<br><b>Order total</b> = job setup + pieces × price per piece.</p>
+    <div class="grid2">
+      <div class="field"><label for="pHourly">Machine + operator ₹ per hour</label><input id="pHourly" inputmode="decimal"></div>
+      <div class="field"><label for="pSpm">Real speed, stitches per minute</label><input id="pSpm" inputmode="decimal"></div>
+      <div class="field"><label for="pCc">Minutes per colour change</label><input id="pCc" inputmode="decimal"></div>
+      <div class="field"><label for="pHandling">Handling per piece ₹ (framing, trimming)</label><input id="pHandling" inputmode="decimal"></div>
+      <div class="field"><label for="pMin">Minimum per piece ₹</label><input id="pMin" inputmode="decimal"></div>
+      <div class="field"><label for="pJob">Job setup once per order ₹</label><input id="pJob" inputmode="decimal"></div>
+      <div class="field"><label for="pRound">Round up to nearest ₹</label><input id="pRound" inputmode="decimal"></div>
+    </div>
+    <p class="hint">The numbers shown are starting values, not your rates. Set your own, then check them with the test below.</p>
+    <div class="actions"><button class="btn small primary" id="btnSavePricing" type="button">Save pricing</button></div>
+  </div>
+  <div class="panel">
+    <h2>Test the formula</h2>
+    <div class="grid2">
+      <div class="field"><label for="tSt">Stitches</label><input id="tSt" inputmode="numeric" value="20000"></div>
+      <div class="field"><label for="tCol">Colour changes</label><input id="tCol" inputmode="numeric" value="3"></div>
+    </div>
+    <div id="tOut" class="hint" style="font-size:.9rem"></div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS ===================== -->
+<div class="shell view single" id="v-reports">
+  <div id="reportBox"></div>
+</div>
+
+<dialog id="payDlg" class="dlg">
+  <form method="dialog" id="payForm">
+    <h2 id="payTitle">Record payment</h2>
+    <p class="hint" id="payInfo" style="margin:0 0 10px"></p>
+    <div class="field"><label for="pAmt">Amount ₹</label><input id="pAmt" inputmode="decimal"></div>
+    <div class="grid2">
+      <div class="field"><label for="pMode">Mode</label><select id="pMode" class="sel"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank transfer</option></select></div>
+      <div class="field"><label for="pDate">Date</label><input id="pDate" type="date"></div>
+    </div>
+    <div class="field"><label for="pNote">Note (optional)</label><input id="pNote" autocomplete="off"></div>
+    <div class="actions" style="justify-content:flex-end">
+      <button class="btn ghost" id="pCancel" type="button">Cancel</button>
+      <button class="btn primary" id="pSave" type="button">Save payment</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="actionbar" id="actionbar">
+  <button class="btn primary" id="btnSave" type="button">Save invoice</button>
+  <button class="btn gold" id="btnShare" type="button">Share PDF</button>
+  <button class="btn ghost" id="btnDownload" type="button">Download</button>
+  <button class="btn ghost" id="btnNew" type="button" hidden>New</button>
+</div>
+
+<div class="print-sheet" id="printSheet"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="vendor/html2canvas.min.js"></script>
+<script src="app.js"></script>
+<script>
+if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }
+</script>
+</body>
+</html>

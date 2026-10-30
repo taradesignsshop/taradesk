@@ -1,0 +1,156 @@
+[
+ {
+  "Design ID": "DEMO01",
+  "Design name": "B01",
+  "Category": "Border",
+  "Stitch count": 148,
+  "Colour changes": 1,
+  "Width mm": 80.0,
+  "Height mm": 30.0,
+  "Preview link (Drive)": "demo/previews/B01.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO02",
+  "Design name": "B02",
+  "Category": "Border",
+  "Stitch count": 334,
+  "Colour changes": 2,
+  "Width mm": 80.0,
+  "Height mm": 8.0,
+  "Preview link (Drive)": "demo/previews/B02.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO03",
+  "Design name": "B03",
+  "Category": "Border",
+  "Stitch count": 4150,
+  "Colour changes": 1,
+  "Width mm": 84.0,
+  "Height mm": 21.4,
+  "Preview link (Drive)": "demo/previews/B03.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO04",
+  "Design name": "B04",
+  "Category": "Border",
+  "Stitch count": 857,
+  "Colour changes": 2,
+  "Width mm": 92.8,
+  "Height mm": 12.8,
+  "Preview link (Drive)": "demo/previews/B04.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO05",
+  "Design name": "B05",
+  "Category": "Border",
+  "Stitch count": 3536,
+  "Colour changes": 2,
+  "Width mm": 60.0,
+  "Height mm": 60.0,
+  "Preview link (Drive)": "demo/previews/B05.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO06",
+  "Design name": "B06",
+  "Category": "Border",
+  "Stitch count": 9488,
+  "Colour changes": 3,
+  "Width mm": 60.0,
+  "Height mm": 60.0,
+  "Preview link (Drive)": "demo/previews/B06.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO07",
+  "Design name": "I01",
+  "Category": "Motif",
+  "Stitch count": 1080,
+  "Colour changes": 1,
+  "Width mm": 28.6,
+  "Height mm": 27.1,
+  "Preview link (Drive)": "demo/previews/I01.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO08",
+  "Design name": "I02",
+  "Category": "Motif",
+  "Stitch count": 3026,
+  "Colour changes": 1,
+  "Width mm": 22.6,
+  "Height mm": 20.4,
+  "Preview link (Drive)": "demo/previews/I02.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO09",
+  "Design name": "I03",
+  "Category": "Motif",
+  "Stitch count": 7086,
+  "Colour changes": 2,
+  "Width mm": 34.0,
+  "Height mm": 38.0,
+  "Preview link (Drive)": "demo/previews/I03.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO10",
+  "Design name": "I04",
+  "Category": "Motif",
+  "Stitch count": 8516,
+  "Colour changes": 2,
+  "Width mm": 32.0,
+  "Height mm": 32.0,
+  "Preview link (Drive)": "demo/previews/I04.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO11",
+  "Design name": "I05",
+  "Category": "Motif",
+  "Stitch count": 4836,
+  "Colour changes": 2,
+  "Width mm": 28.4,
+  "Height mm": 44.0,
+  "Preview link (Drive)": "demo/previews/I05.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO12",
+  "Design name": "I06",
+  "Category": "Motif",
+  "Stitch count": 29130,
+  "Colour changes": 4,
+  "Width mm": 69.0,
+  "Height mm": 69.0,
+  "Preview link (Drive)": "demo/previews/I06.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO13",
+  "Design name": "I07",
+  "Category": "Motif",
+  "Stitch count": 7524,
+  "Colour changes": 2,
+  "Width mm": 52.4,
+  "Height mm": 33.0,
+  "Preview link (Drive)": "demo/previews/I07.png",
+  "demo": true
+ },
+ {
+  "Design ID": "DEMO14",
+  "Design name": "I08",
+  "Category": "Motif",
+  "Stitch count": 9720,
+  "Colour changes": 2,
+  "Width mm": 42.0,
+  "Height mm": 42.0,
+  "Preview link (Drive)": "demo/previews/I08.png",
+  "demo": true
+ }
+]
