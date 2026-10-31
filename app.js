@@ -464,10 +464,10 @@ $("btnAddCust").addEventListener("click",async function(){
 /* ---- designs ---- */
 var D_PAGE=24, dShown=D_PAGE;
 /* ---- pricing formula ---- */
-var PK={hourly:["Price: hourly rate (Rs)",300],spm:["Price: stitches per minute",600],cc:["Price: minutes per colour change",1],handling:["Price: handling per piece (Rs)",30],min:["Price: minimum per piece (Rs)",100],job:["Price: job setup (Rs)",0],round:["Price: round up to (Rs)",10]};
+var PK={hourly:["Price: hourly rate (Rs)",200],spm:["Price: stitches per minute",500],cc:["Price: minutes per colour change",10],handling:["Price: handling per piece (Rs)",30],min:["Price: minimum per piece (Rs)",300],job:["Price: job setup (Rs)",0],round:["Price: round up to (Rs)",10]};
 function pp(k){ var v=bset[PK[k][0]]; v=(v===""||v==null)?PK[k][1]:Number(v); return isNaN(v)?PK[k][1]:v; }
-function quote(stitches,colours,qty,extraPct){
-  var spm=pp("spm")>0?pp("spm"):600, minutes=stitches/spm+colours*pp("cc"), machine=minutes/60*pp("hourly"), handling=pp("handling");
+function quote(stitches,colours,qty,extraPct,frames){
+  var spm=pp("spm")>0?pp("spm"):500, minutes=stitches/spm+colours*pp("cc"), machine=minutes/60*pp("hourly"), handling=pp("handling")*Math.max(1,frames||1);
   var raw=handling+machine, floor=raw<pp("min"), base=Math.max(raw,pp("min")), extra=base*(extraPct||0)/100; base+=extra;
   var r=pp("round"), per=r>0?Math.ceil(base/r-1e-9)*r:Math.round(base); qty=Math.max(1,Math.round(qty||1));
   return {minutes:minutes,machine:machine,handling:handling,floor:floor,extra:extra,per:per,qty:qty,job:pp("job"),total:pp("job")+per*qty};
@@ -522,24 +522,72 @@ $("fDesign").addEventListener("change",function(){
   showDesignHint();
 });
 
+/* ---- blouse (multi-part) quote ---- */
+var partSel={};   // design name -> {on,qty}
+function baseOf(n){ return String(n||"").trim().split(/\s+/)[0]; }
+function partOf(n){ return String(n||"").trim().split(/\s+/).slice(1).join(" "); }
+function partsFor(code){
+  var c=normCode(code); if(!c) return null;
+  var list=designs.filter(function(d){ var n=String(d["Design name"]||""); return /\s/.test(n.trim())&&normCode(baseOf(n))===c; });
+  return list.length?list:null;
+}
+function defQty(label){ var l=label.toLowerCase(); if(/border|half/.test(l)) return 0; if(/hand/.test(l)) return 2; if(/^(back|front)$/.test(l)) return 1; return 0; }
+function orderLabel(base,sel){ return base+" – "+sel.map(function(x){ return (x.qty>1?x.qty+" × ":"")+x.label; }).join(" + "); }
+function renderParts(list,blouses,extra,code){
+  var res=$("qResult"), box=$("qParts"); box.innerHTML="";
+  var base=baseOf(list[0]["Design name"]);
+  var rows=list.map(function(d){
+    var n=d["Design name"], lab=partOf(n); if(!partSel[n]){ var q0=defQty(lab); partSel[n]={on:q0>0,qty:q0>0?q0:1}; }
+    return {d:d,n:n,label:lab,st:num(d["Stitch count"]),col:num(d["Colour changes"]),s:partSel[n]};
+  });
+  var pan=el("div","panel parts"); pan.innerHTML='<div class="eyebrow">Parts of the blouse</div>';
+  rows.forEach(function(r){
+    var row=el("div","prow"+(r.s.on?" on":""));
+    row.innerHTML='<label class="pchk"><input type="checkbox"'+(r.s.on?" checked":"")+'><span><b>'+esc(r.label||r.n)+'</b><small>'+r.st.toLocaleString("en-IN")+' stitches</small></span></label>'+
+      '<span class="pstep"><button type="button" data-d="-1" aria-label="Fewer">−</button><output>'+r.s.qty+'</output><button type="button" data-d="1" aria-label="More">+</button></span>';
+    row.querySelector("input").addEventListener("change",function(e){ r.s.on=e.target.checked; renderQuote(); });
+    row.querySelectorAll(".pstep button").forEach(function(b){ b.addEventListener("click",function(){ r.s.qty=Math.max(1,Math.min(9,r.s.qty+Number(b.dataset.d))); r.s.on=true; renderQuote(); }); });
+    pan.appendChild(row);
+  });
+  box.appendChild(pan);
+  var sel=rows.filter(function(r){return r.s.on;});
+  if(!sel.length){ res.innerHTML='<div class="panel"><p class="empty">Tick at least one part.</p></div>'; return; }
+  var st=0,col=0,fr=0; sel.forEach(function(r){ st+=r.st*r.s.qty; col+=r.col*r.s.qty; fr+=r.s.qty; });
+  var q=quote(st,col,blouses,extra,fr), label=orderLabel(base,sel.map(function(r){return {qty:r.s.qty,label:r.label};}));
+  res.innerHTML='<div class="panel qcard"><div class="eyebrow">'+esc(label)+'</div><div class="qprice">₹ '+money(q.per).replace(/\.00$/,"")+'<small> per blouse</small></div>'+
+    '<div class="qmeta">'+st.toLocaleString("en-IN")+' stitches · '+col+' colour change'+(col===1?"":"s")+' · '+fr+' frame'+(fr===1?"":"s")+' · about '+hm(q.minutes)+' on the machine</div>'+
+    '<div class="qrows"><div><span>Machine time ('+hm(q.minutes)+' × ₹ '+pp("hourly")+'/h)</span><span>₹ '+money(q.machine)+'</span></div>'+
+    '<div><span>Handling ('+fr+' × ₹ '+pp("handling")+')</span><span>₹ '+money(q.handling)+'</span></div>'+
+    (q.floor?'<div><span>Minimum order charge applies</span><span>₹ '+money(pp("min"))+'</span></div>':'')+
+    (q.extra>0?'<div><span>Extra '+extra+'%</span><span>₹ '+money(q.extra)+'</span></div>':'')+
+    (q.qty>1||q.job>0?'<div class="tot"><span>'+q.qty+' blouse'+(q.qty===1?"":"s")+(q.job>0?' + job setup ₹ '+money(q.job):'')+'</span><span>₹ '+money(q.total)+'</span></div>':'')+'</div>'+
+    '<div class="actions" style="margin-top:12px"><button class="btn primary" id="qUse" type="button">Start invoice</button></div></div>';
+  $("qUse").addEventListener("click",function(){
+    if(lockedNo) newInvoice();
+    items=[{desc:label+" embroidery",qty:q.qty,rate:q.per,stitches:st}]; if(q.job>0) items.push({desc:"Job setup",qty:1,rate:q.job});
+    $("fDesign").value=base; $("fStitch").value=st; renderItemRows(); render(); show("invoice"); window.scrollTo({top:0,behavior:"smooth"});
+  });
+}
 /* ---- quick quote ---- */
 function renderQuote(){
   var code=$("qCode").value.trim(), qty=num($("qQty").value)||1, extra=num($("qExtra").value), res=$("qResult"), chips=$("qChips");
+  $("qParts").innerHTML="";
+  var pl=partsFor(code);
+  if(pl){ chips.innerHTML=""; renderParts(pl,qty,extra,code); return; }
   var d=findDesign(code), st=null, col=0, label="";
   chips.innerHTML="";
   if(d){ st=num(d["Stitch count"]); col=num(d["Colour changes"]); label=d["Design name"]; }
   else if(num($("qSt").value)>0){ st=num($("qSt").value); col=num($("qCol").value); label="Custom design"; }
   if(!d&&code){   // suggestions while typing
-    var c=normCode(code), m=designs.filter(function(x){return normCode(x["Design name"]).indexOf(c)===0;}).slice(0,8);
-    if(!m.length) m=designs.filter(function(x){return normCode(x["Design name"]).indexOf(c)>=0;}).slice(0,8);
-    m.forEach(function(x){ var b=el("button","chip pick",esc(x["Design name"])); b.type="button"; b.addEventListener("click",function(){ $("qCode").value=x["Design name"]; renderQuote(); }); chips.appendChild(b); });
+    var c=normCode(code), seen={}, m=[]; designs.forEach(function(x){ var n=String(x["Design name"]), b=/\s/.test(n.trim())?baseOf(n):n; if(normCode(b).indexOf(c)===0&&!seen[b]&&m.length<8){ seen[b]=1; m.push(b); } });
+    m.forEach(function(b0){ var b=el("button","chip pick",esc(b0)); b.type="button"; b.addEventListener("click",function(){ $("qCode").value=b0; renderQuote(); }); chips.appendChild(b); });
   }
   if(st==null){ res.innerHTML=code?'<div class="panel"><p class="empty">No design called “'+esc(code)+'” yet. Pick one of the suggestions, or enter the stitch count under “Design not in the catalog”.</p></div>':'<div class="panel"><p class="empty">Type a design code to see the price.</p></div>'; if(!code&&designs.length){ var ch=el("div","chips"); designs.slice(0,8).forEach(function(d){ var c=el("button","chip pick"); c.type="button"; c.textContent=d["Design name"]; c.onclick=function(){ $("qCode").value=d["Design name"]; renderQuote(); }; ch.appendChild(c); }); res.appendChild(ch); } return; }
   var q=quote(st,col,qty,extra);
   res.innerHTML='<div class="panel qcard"><div class="eyebrow">'+esc(label)+'</div><div class="qprice">₹ '+money(q.per).replace(/\.00$/,"")+'<small> per piece</small></div>'+
     '<div class="qmeta">'+st.toLocaleString("en-IN")+' stitches · '+col+' colour change'+(col===1?"":"s")+' · about '+hm(q.minutes)+' on the machine</div>'+
     '<div class="qrows"><div><span>Machine time ('+hm(q.minutes)+' × ₹ '+pp("hourly")+'/h)</span><span>₹ '+money(q.machine)+'</span></div>'+
-    '<div><span>Handling per piece</span><span>₹ '+money(q.handling)+'</span></div>'+
+    '<div><span>Handling</span><span>₹ '+money(q.handling)+'</span></div>'+
     (q.floor?'<div><span>Minimum charge applies</span><span>₹ '+money(pp("min"))+'</span></div>':'')+
     (q.extra>0?'<div><span>Extra '+extra+'%</span><span>₹ '+money(q.extra)+'</span></div>':'')+
     (q.qty>1||q.job>0?'<div class="tot"><span>'+q.qty+' piece'+(q.qty===1?"":"s")+(q.job>0?' + job setup ₹ '+money(q.job):'')+'</span><span>₹ '+money(q.total)+'</span></div>':'')+'</div>'+

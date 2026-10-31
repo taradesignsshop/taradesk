@@ -51,8 +51,9 @@
     <h2>What should we charge?</h2>
     <div class="field"><label for="qCode">Design code</label><input id="qCode" class="bigin" list="designList" placeholder="e.g. B16" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></div>
     <div id="qChips" class="chips"></div>
+    <div id="qParts"></div>
     <div class="grid2">
-      <div class="field"><label for="qQty">Pieces</label><input id="qQty" inputmode="numeric" value="1"></div>
+      <div class="field"><label for="qQty">Blouses / pieces</label><input id="qQty" inputmode="numeric" value="1"></div>
       <div class="field"><label for="qExtra">Extra % (tricky fabric, rush)</label><input id="qExtra" inputmode="decimal" placeholder="0"></div>
     </div>
     <details class="manual"><summary>Design not in the catalog? Enter stitches</summary>
@@ -223,7 +224,7 @@
       <div class="field"><label for="pHourly">Machine + operator ₹ per hour</label><input id="pHourly" inputmode="decimal"></div>
       <div class="field"><label for="pSpm">Real speed, stitches per minute</label><input id="pSpm" inputmode="decimal"></div>
       <div class="field"><label for="pCc">Minutes per colour change</label><input id="pCc" inputmode="decimal"></div>
-      <div class="field"><label for="pHandling">Handling per piece ₹ (framing, trimming)</label><input id="pHandling" inputmode="decimal"></div>
+      <div class="field"><label for="pHandling">Handling per frame ₹ (hooping, marking, extra cloth)</label><input id="pHandling" inputmode="decimal"></div>
       <div class="field"><label for="pMin">Minimum per piece ₹</label><input id="pMin" inputmode="decimal"></div>
       <div class="field"><label for="pJob">Job setup once per order ₹</label><input id="pJob" inputmode="decimal"></div>
       <div class="field"><label for="pRound">Round up to nearest ₹</label><input id="pRound" inputmode="decimal"></div>

@@ -431,3 +431,15 @@ body.has-actionbar .toast{ bottom:calc(var(--nav-h) + 90px + env(safe-area-inset
 }
 @media (prefers-reduced-motion:reduce){ .sheet,.scrim,.ripple{ animation:none; } }
 @media print{ .appbar,.bnav,.sheet,.scrim,.fab{ display:none !important; } }
+
+/* blouse parts */
+#qParts .panel{ margin-top:12px; }
+.prow{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--line); opacity:.55; }
+.prow.on{ opacity:1; }
+.pchk{ display:flex; align-items:center; gap:12px; flex:1; cursor:pointer; min-height:44px; }
+.pchk input{ width:22px; height:22px; accent-color:var(--maroon); }
+.pchk b{ display:block; font-weight:600; text-transform:capitalize; }
+.pchk small{ display:block; color:var(--muted); font-size:.76rem; font-variant-numeric:tabular-nums; }
+.pstep{ display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:#fff; }
+.pstep button{ width:40px; height:40px; border:0; background:none; font-size:1.2rem; color:var(--maroon); cursor:pointer; }
+.pstep output{ min-width:24px; text-align:center; font-weight:600; font-variant-numeric:tabular-nums; }
