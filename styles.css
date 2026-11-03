@@ -443,3 +443,22 @@ body.has-actionbar .toast{ bottom:calc(var(--nav-h) + 90px + env(safe-area-inset
 .pstep{ display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:#fff; }
 .pstep button{ width:40px; height:40px; border:0; background:none; font-size:1.2rem; color:var(--maroon); cursor:pointer; }
 .pstep output{ min-width:24px; text-align:center; font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* set browsing */
+.setchips{ margin:10px 0 6px; flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.setchips::-webkit-scrollbar{ display:none; }
+.setchips .chip.pick{ flex:0 0 auto; min-width:48px; justify-content:center; gap:6px; font-weight:600; }
+.setchips .chip.pick small{ font-size:.66rem; opacity:.7; font-weight:500; }
+.setchips .chip.pick.on{ background:var(--maroon); color:#fff; }
+button.dcard{ padding:0; text-align:left; font:inherit; color:inherit; cursor:pointer; }
+.prow.withpic .pchk{ gap:10px; }
+.pth{ width:64px; height:64px; flex:0 0 64px; border-radius:10px; background:var(--tint); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.pth img{ width:100%; height:100%; object-fit:contain; }
+.pth{ min-width:64px; }
+#v-set{ padding-bottom:84px; }
+.sbar{ position:fixed; left:0; right:0; bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px)); z-index:40; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; background:var(--paper); border-top:1px solid var(--line); box-shadow:0 -4px 14px rgba(0,0,0,.08); }
+.sbar[hidden]{ display:none; }
+.sbar b{ display:block; font-size:1.25rem; color:var(--maroon); font-variant-numeric:tabular-nums; }
+.sbar small{ display:block; color:var(--muted); font-size:.74rem; }
+.inl .panel{ margin:10px 0; }
+#v-designs{ padding-bottom:84px; }

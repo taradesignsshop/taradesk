@@ -315,21 +315,22 @@ function fillSettings(){ Object.keys(SMAP).forEach(function(id){ $(id).value=set
 function syncTheme(){ document.querySelectorAll("#themeSeg button").forEach(function(b){ b.setAttribute("aria-pressed",(b.dataset.t===(settings.theme==="deep"?"deep":"brand"))?"true":"false"); }); }
 
 /* ---------- Navigation ---------- */
-var TITLES={quote:"Quote",invoice:"New invoice",history:"Invoices",dues:"Dues",designs:"Designs",customers:"Customers",rates:"Rates",reports:"Reports",settings:"Settings"};
-var SUBS={quote:"What should we charge?",invoice:"A5 invoice, PDF on A4",history:"From your Sheet",dues:"Pending payments",designs:"Design library",customers:"Your customers",rates:"Price list",reports:"Sales and collections",settings:"Shop and connection"};
+var TITLES={set:"Design set",quote:"Quote",invoice:"New invoice",history:"Invoices",dues:"Dues",designs:"Designs",customers:"Customers",rates:"Rates",reports:"Reports",settings:"Settings"};
+var SUBS={set:"Pick the parts, see the price",quote:"What should we charge?",invoice:"A5 invoice, PDF on A4",history:"From your Sheet",dues:"Pending payments",designs:"Design library",customers:"Your customers",rates:"Price list",reports:"Sales and collections",settings:"Shop and connection"};
 var MAIN=["quote","invoice","history","designs"], curView="quote";
 function closeSheet(){ $("moreSheet").hidden=true; $("scrim").hidden=true; document.body.classList.remove("sheet-open"); }
 function openSheet(){ try{ window.history.pushState({v:curView,sheet:1},"",""); }catch(e){} $("moreSheet").hidden=false; $("scrim").hidden=false; document.body.classList.add("sheet-open"); }
 function show(v,noPush){
   closeSheet(); curView=v;
   document.querySelectorAll(".view").forEach(function(el){ el.classList.toggle("on",el.id==="v-"+v); });
-  document.querySelectorAll("#nav button").forEach(function(b){ var on=b.dataset.v===v||(b.dataset.v==="more"&&MAIN.indexOf(v)<0); b.setAttribute("aria-pressed",on?"true":"false"); });
+  document.querySelectorAll("#nav button").forEach(function(b){ var on=b.dataset.v===(v==="set"?"designs":v)||(b.dataset.v==="more"&&MAIN.indexOf(v)<0&&v!=="set"); b.setAttribute("aria-pressed",on?"true":"false"); });
   $("barTitle").textContent=TITLES[v]||"Tara Desk"; $("barSub").textContent=SUBS[v]||"Tara Designs";
   $("actionbar").hidden=(v!=="invoice"); $("fabNew").hidden=(v!=="history");
   document.body.classList.toggle("has-actionbar",v==="invoice");
   if(!noPush){ try{ window.history.pushState({v:v},"",""); }catch(e){} }
   if(v==="history"||v==="dues"||v==="customers"||v==="reports") loadHistory();
   if(v==="designs") renderDesigns(true);
+  if(v==="set") renderSet();
   if(v==="quote"){ renderQuote(); }
   if(v==="rates") renderRates();
   if(v==="invoice"){ setInvTab("form"); setTimeout(fitPreview,60); }
@@ -370,6 +371,12 @@ $("btnShare").addEventListener("click",function(){ exportPdf("share"); });
 $("btnDownload").addEventListener("click",function(){ exportPdf("download"); });
 $("btnNew").addEventListener("click",newInvoice);
 $("btnRefresh").addEventListener("click",loadHistory);
+$("btnShareCfg").addEventListener("click",async function(){
+  var c=getCfg(); if(!c.url||!c.token){ toast("Connect this device first"); return; }
+  var link=location.origin+location.pathname+"#cfg="+encodeURIComponent(btoa(JSON.stringify({url:c.url,token:c.token})));
+  try{ await navigator.clipboard.writeText(link); toast("Setup link copied. Send it to yourself, open it on the other device."); }
+  catch(e){ window.prompt("Copy this setup link",link); }
+});
 $("btnConnect").addEventListener("click",async function(){
   var url=$("cUrl").value.trim(), token=$("cToken").value.trim(), msg=$("connMsg");
   if(!url||!token){ msg.textContent="Enter both the URL and the token."; return; }
@@ -474,28 +481,43 @@ function quote(stitches,colours,qty,extraPct,frames){
 }
 function normCode(s){ return String(s||"").toLowerCase().replace(/[\s_\-\.]+/g,""); }
 function findDesign(code){ var c=normCode(code); if(!c) return null; return designs.find(function(d){return normCode(d["Design name"])===c;})||null; }
-function designQuote(d,qty,extra){ return quote(num(d["Stitch count"]),num(d["Colour changes"]),qty,extra); }
+function isHand(n){ return /hand/i.test(partOf(n)); }
+function designQuote(d,qty,extra){ var m=isHand(d["Design name"])?2:1; return quote(num(d["Stitch count"])*m,num(d["Colour changes"])*m,qty,extra,m); }   // sleeves always come as a pair
 function hm(min){ min=Math.round(min); return min>=60?Math.floor(min/60)+" h "+(min%60)+" min":min+" min"; }
 function suggested(d){ return designQuote(d,1,0).per; }
+var dSet="";
+function groupPrice(g){   // full blouse: back + front + both hands (whatever the set has)
+  var st=0,col=0,fr=0,any=false;
+  g.parts.forEach(function(d){ var l=partOf(d["Design name"]).toLowerCase(); if(l===""||/^(back|front|hand)$/.test(l)){ var m=/hand/.test(l)?2:1; st+=num(d["Stitch count"])*m; col+=num(d["Colour changes"])*m; fr+=m; any=true; } });
+  if(!any){ var d=g.parts[0]; st=num(d["Stitch count"]); col=num(d["Colour changes"]); fr=1; }
+  var q=quote(st,col,1,0,fr); return {st:st,price:q.per};
+}
+function cover(g){ return g.parts.find(function(d){return partOf(d["Design name"]).toLowerCase()==="back"&&d["Preview link (Drive)"];})||g.parts.find(function(d){return d["Preview link (Drive)"];})||g.parts[0]; }
 function renderDesigns(reset){
   if(reset) dShown=D_PAGE;
-  var cats=[]; designs.forEach(function(d){ var c=d["Category"]; if(c&&cats.indexOf(c)<0) cats.push(c); });
-  var sel=$("dCat"), cur=sel.value; sel.innerHTML='<option value="">All categories</option>'+cats.sort().map(function(c){return '<option>'+esc(c)+'</option>';}).join(""); sel.value=cats.indexOf(cur)>=0?cur:"";
-  var q=$("dSearch").value.trim().toLowerCase();
-  var list=designs.filter(function(d){ return (!sel.value||d["Category"]===sel.value)&&(!q||(String(d["Design name"])+" "+String(d["Category"]||"")).toLowerCase().indexOf(q)>=0); });
-  $("dCount").textContent=designs.length?(list.length+" of "+designs.length+" designs"):"No designs yet. Run the DST tool with --sync to add your designs.";
-  var g=$("designGrid"); g.innerHTML="";
-  list.slice(0,dShown).forEach(function(d){
-    var c=el("div","dcard"), t=thumb(d["Preview link (Drive)"]), p=suggested(d);
-    c.innerHTML='<div class="pic">'+(t?'<img loading="lazy" alt="" src="'+esc(t)+'">':'No preview')+'</div><div class="meta"><div class="nm">'+esc(d["Design name"])+'</div>'+
-      '<div class="sub">'+Number(d["Stitch count"]||0).toLocaleString("en-IN")+' stitches'+(d["Width mm"]?' · '+Math.round(d["Width mm"]/10)+'×'+Math.round(d["Height mm"]/10)+' cm':'')+'</div>'+(p?'<div class="price">₹ '+money(p)+'</div>':'')+'</div>';
+  var all=groups(), sets=[], cnt={}; all.forEach(function(g){ if(!cnt[g.set]){ cnt[g.set]=0; sets.push(g.set); } cnt[g.set]++; });
+  sets.sort(); if(dSet&&!cnt[dSet]) dSet="";
+  var sb=$("dSets"); sb.innerHTML="";
+  [""].concat(sets).forEach(function(k){ var b=el("button","chip pick"+(dSet===k?" on":""),k?esc(k)+'<small>'+cnt[k]+'</small>':'All'); b.type="button"; b.setAttribute("aria-pressed",dSet===k?"true":"false"); b.addEventListener("click",function(){ dSet=k; renderDesigns(true); }); sb.appendChild(b); });
+  var q=normCode($("dSearch").value);
+  var list=all.filter(function(g){ return (!dSet||g.set===dSet)&&(!q||normCode(g.base).indexOf(q)===0||g.parts.some(function(d){return normCode(d["Design name"]+" "+(d["Category"]||"")).indexOf(q)>=0;})); });
+  $("dCount").textContent=designs.length?(list.length+" of "+all.length+" sets"+(dSet?" in "+dSet:"")+(q&&all.some(function(g){return normCode(g.base)===q;})?" (including the one above)":"")):"No designs yet. Run the catalog tool and upload to add your designs.";
+  var ex=q?all.find(function(g){ return normCode(g.base)===q&&(!dSet||g.set===dSet); }):null;   // exact set code typed -> open its parts right here
+  if(ex){ if(!ex.parts.some(function(d){return pstate(d).on;})) pstate(ex.parts[0]).on=true;
+    renderParts(ex.parts,1,0,{parts:$("dInline"),res:$("dInlineRes"),again:function(){ renderDesigns(false); },thumbs:true,append:true,id:"dUse",bar:$("dBar")}); list=list.filter(function(g){return g!==ex;}); }
+  else { $("dInline").innerHTML=""; $("dInlineRes").innerHTML=""; $("dBar").hidden=true; }
+  var g0=$("designGrid"); g0.innerHTML="";
+  list.slice(0,dShown).forEach(function(g){
+    var c=el("button","dcard"), cv=cover(g), t=thumb(cv["Preview link (Drive)"]), gp=groupPrice(g), names=g.parts.map(function(d){return partOf(d["Design name"])||"design";});
+    c.type="button";
+    c.innerHTML='<div class="pic">'+(t?'<img loading="lazy" alt="" src="'+esc(t)+'">':'No preview')+'</div><div class="meta"><div class="nm">'+esc(g.base)+'</div>'+
+      '<div class="sub">'+esc(names.join(" · "))+'</div><div class="sub">'+gp.st.toLocaleString("en-IN")+' stitches</div></div>';
     var im=c.querySelector("img"); if(im) im.addEventListener("error",function(){ im.parentNode.textContent="No preview"; });
-    var b=el("button","btn small gold","Use in invoice"); b.type="button"; b.style.margin="0 10px 10px"; b.addEventListener("click",function(){ useDesign(d); }); c.appendChild(b); g.appendChild(c);
+    c.addEventListener("click",function(){ openSet(g); }); g0.appendChild(c);
   });
   $("dMore").hidden=list.length<=dShown;
 }
 $("dSearch").addEventListener("input",function(){ renderDesigns(true); });
-$("dCat").addEventListener("change",function(){ renderDesigns(true); });
 $("dMore").addEventListener("click",function(){ dShown+=D_PAGE; renderDesigns(false); });
 $("browseDesigns").addEventListener("click",function(e){ e.preventDefault(); show("designs"); });
 function useDesign(d,qty,extra){
@@ -526,27 +548,37 @@ $("fDesign").addEventListener("change",function(){
 var partSel={};   // design name -> {on,qty}
 function baseOf(n){ return String(n||"").trim().split(/\s+/)[0]; }
 function partOf(n){ return String(n||"").trim().split(/\s+/).slice(1).join(" "); }
+function setOf(d){ var s=d["Set"]; if(s) return String(s).toUpperCase(); var m=baseOf(d["Design name"]).match(/^[A-Za-z]+/); return m?m[0].toUpperCase():"#"; }
+function prank(l){ l=l.toLowerCase(); return l==="back"?0:l==="front"?1:l==="hand"?2:3; }
+function pstate(d){ var n=d["Design name"]; if(!partSel[n]){ var l=partOf(n).toLowerCase(); partSel[n]={on:l===""||/^(back|front|hand)$/.test(l),qty:/hand/.test(l)?2:1}; } return partSel[n]; }   // sleeves default to 2 (both hands)
+var _grp=null,_grpFor=null;
+function groups(){
+  if(_grp&&_grpFor===designs&&_grp.n===designs.length) return _grp.list;
+  var map={}, list=[];
+  designs.forEach(function(d){ var n=String(d["Design name"]||"").trim(); if(!n) return; var b=/\s/.test(n)?baseOf(n):n; (map[b]=map[b]||{base:b,set:setOf(d),parts:[]}).parts.push(d); });
+  Object.keys(map).forEach(function(k){ var g=map[k]; g.parts.sort(function(x,y){ return prank(partOf(x["Design name"]))-prank(partOf(y["Design name"])) || String(x["Design name"]).localeCompare(String(y["Design name"])); }); list.push(g); });
+  list.sort(function(x,y){ return x.set<y.set?-1:x.set>y.set?1:(parseInt(x.base.replace(/^\D+/,""),10)||0)-(parseInt(y.base.replace(/^\D+/,""),10)||0)||x.base.localeCompare(y.base); });
+  _grp={n:designs.length,list:list}; _grpFor=designs; return list;
+}
 function partsFor(code){
   var c=normCode(code); if(!c) return null;
-  var list=designs.filter(function(d){ var n=String(d["Design name"]||""); return /\s/.test(n.trim())&&normCode(baseOf(n))===c; });
-  return list.length?list:null;
+  var g=groups().find(function(x){ return normCode(x.base)===c&&(x.parts.length>1||/\s/.test(String(x.parts[0]["Design name"]).trim())); });
+  return g?g.parts:null;
 }
-function defQty(label){ var l=label.toLowerCase(); if(/border|half/.test(l)) return 0; if(/hand/.test(l)) return 2; if(/^(back|front)$/.test(l)) return 1; return 0; }
-function orderLabel(base,sel){ return base+" – "+sel.map(function(x){ return (x.qty>1?x.qty+" × ":"")+x.label; }).join(" + "); }
-function renderParts(list,blouses,extra,code){
-  var res=$("qResult"), box=$("qParts"); box.innerHTML="";
+function orderLabel(base,sel){ return base+" – "+sel.map(function(x){ return (x.qty>1?x.qty+" × ":"")+(x.label||"design"); }).join(" + "); }
+function renderParts(list,blouses,extra,o){
+  var res=o.res, box=o.parts; box.innerHTML=""; if(o.bar) o.bar.hidden=true;
   var base=baseOf(list[0]["Design name"]);
-  var rows=list.map(function(d){
-    var n=d["Design name"], lab=partOf(n); if(!partSel[n]){ var q0=defQty(lab); partSel[n]={on:q0>0,qty:q0>0?q0:1}; }
-    return {d:d,n:n,label:lab,st:num(d["Stitch count"]),col:num(d["Colour changes"]),s:partSel[n]};
-  });
+  var rows=list.map(function(d){ var n=d["Design name"], lab=partOf(n); return {d:d,n:n,label:lab,st:num(d["Stitch count"]),col:num(d["Colour changes"]),s:pstate(d)}; });
   var pan=el("div","panel parts"); pan.innerHTML='<div class="eyebrow">Parts of the blouse</div>';
   rows.forEach(function(r){
-    var row=el("div","prow"+(r.s.on?" on":""));
-    row.innerHTML='<label class="pchk"><input type="checkbox"'+(r.s.on?" checked":"")+'><span><b>'+esc(r.label||r.n)+'</b><small>'+r.st.toLocaleString("en-IN")+' stitches</small></span></label>'+
+    var t=o.thumbs?thumb(r.d["Preview link (Drive)"]):"";
+    var row=el("div","prow"+(r.s.on?" on":"")+(o.thumbs?" withpic":""));
+    row.innerHTML='<label class="pchk"><input type="checkbox"'+(r.s.on?" checked":"")+'>'+(o.thumbs?'<span class="pth">'+(t?'<img alt="" src="'+esc(t)+'">':'')+'</span>':'')+'<span><b>'+esc(r.label||r.n)+'</b><small>'+r.st.toLocaleString("en-IN")+' stitches'+(/hand/i.test(r.label)?' · each hand':'')+'</small></span></label>'+
       '<span class="pstep"><button type="button" data-d="-1" aria-label="Fewer">−</button><output>'+r.s.qty+'</output><button type="button" data-d="1" aria-label="More">+</button></span>';
-    row.querySelector("input").addEventListener("change",function(e){ r.s.on=e.target.checked; renderQuote(); });
-    row.querySelectorAll(".pstep button").forEach(function(b){ b.addEventListener("click",function(){ r.s.qty=Math.max(1,Math.min(9,r.s.qty+Number(b.dataset.d))); r.s.on=true; renderQuote(); }); });
+    var im=row.querySelector("img"); if(im) im.addEventListener("error",function(){ im.remove(); });
+    row.querySelector("input").addEventListener("change",function(e){ r.s.on=e.target.checked; o.again(); });
+    row.querySelectorAll(".pstep button").forEach(function(b){ b.addEventListener("click",function(){ r.s.qty=Math.max(1,Math.min(9,r.s.qty+Number(b.dataset.d))); r.s.on=true; o.again(); }); });
     pan.appendChild(row);
   });
   box.appendChild(pan);
@@ -555,25 +587,39 @@ function renderParts(list,blouses,extra,code){
   var st=0,col=0,fr=0; sel.forEach(function(r){ st+=r.st*r.s.qty; col+=r.col*r.s.qty; fr+=r.s.qty; });
   var q=quote(st,col,blouses,extra,fr), label=orderLabel(base,sel.map(function(r){return {qty:r.s.qty,label:r.label};}));
   res.innerHTML='<div class="panel qcard"><div class="eyebrow">'+esc(label)+'</div><div class="qprice">₹ '+money(q.per).replace(/\.00$/,"")+'<small> per blouse</small></div>'+
-    '<div class="qmeta">'+st.toLocaleString("en-IN")+' stitches · '+col+' colour change'+(col===1?"":"s")+' · '+fr+' frame'+(fr===1?"":"s")+' · about '+hm(q.minutes)+' on the machine</div>'+
+    '<div class="qmeta"><b>'+st.toLocaleString("en-IN")+' stitches</b> in total · '+col+' colour change'+(col===1?"":"s")+' · '+fr+' frame'+(fr===1?"":"s")+' · about '+hm(q.minutes)+' on the machine</div>'+
     '<div class="qrows"><div><span>Machine time ('+hm(q.minutes)+' × ₹ '+pp("hourly")+'/h)</span><span>₹ '+money(q.machine)+'</span></div>'+
     '<div><span>Handling ('+fr+' × ₹ '+pp("handling")+')</span><span>₹ '+money(q.handling)+'</span></div>'+
     (q.floor?'<div><span>Minimum order charge applies</span><span>₹ '+money(pp("min"))+'</span></div>':'')+
     (q.extra>0?'<div><span>Extra '+extra+'%</span><span>₹ '+money(q.extra)+'</span></div>':'')+
     (q.qty>1||q.job>0?'<div class="tot"><span>'+q.qty+' blouse'+(q.qty===1?"":"s")+(q.job>0?' + job setup ₹ '+money(q.job):'')+'</span><span>₹ '+money(q.total)+'</span></div>':'')+'</div>'+
-    '<div class="actions" style="margin-top:12px"><button class="btn primary" id="qUse" type="button">Start invoice</button></div></div>';
-  $("qUse").addEventListener("click",function(){
+    '<div class="actions" style="margin-top:12px"><button class="btn primary" id="'+o.id+'" type="button">'+(o.append?"Add to invoice":"Start invoice")+'</button></div></div>';
+  if(o.bar){ o.bar.hidden=false; o.bar.innerHTML='<div><b>₹ '+money(q.total).replace(/\.00$/,"")+'</b><small>'+st.toLocaleString("en-IN")+' stitches · '+fr+' frame'+(fr===1?"":"s")+(q.qty>1?' · '+q.qty+' blouses':'')+'</small></div><button class="btn primary" type="button">Add to invoice</button>'; o.bar.querySelector("button").addEventListener("click",function(){ $(o.id).click(); }); }
+  $(o.id).addEventListener("click",function(){
     if(lockedNo) newInvoice();
-    items=[{desc:label+" embroidery",qty:q.qty,rate:q.per,stitches:st}]; if(q.job>0) items.push({desc:"Job setup",qty:1,rate:q.job});
-    $("fDesign").value=base; $("fStitch").value=st; renderItemRows(); render(); show("invoice"); window.scrollTo({top:0,behavior:"smooth"});
+    var row={desc:label+" embroidery",qty:q.qty,rate:q.per,stitches:st};
+    var fresh=items.length===1&&!String(items[0].desc||"").trim()&&!num(items[0].rate);
+    items=(o.append&&!fresh)?items.concat([row]):[row];
+    if(q.job>0) items.push({desc:"Job setup",qty:1,rate:q.job});
+    $("fDesign").value=base; $("fStitch").value=st; renderItemRows(); render(); show("invoice"); window.scrollTo({top:0,behavior:"smooth"}); toast("Added "+base+" at ₹ "+money(q.per));
   });
 }
+/* ---- one set (e.g. G3): all its parts, pick several, live total ---- */
+var setCur=null;
+function openSet(g){ setCur=g; if(!g.parts.some(function(d){return pstate(d).on;})) pstate(g.parts[0]).on=true; $("sQty").value=1; $("sExtra").value=""; show("set"); }
+function renderSet(){
+  var g=setCur; if(!g){ show("designs"); return; }
+  $("sEye").textContent="Set "+g.set; $("sTitle").textContent=g.base;
+  renderParts(g.parts,num($("sQty").value)||1,num($("sExtra").value),{parts:$("sParts"),res:$("sResult"),again:renderSet,thumbs:true,append:true,id:"sUse",bar:$("sBar")});
+}
+$("sBack").addEventListener("click",function(){ window.history.back(); });
+["sQty","sExtra"].forEach(function(id){ $(id).addEventListener("input",renderSet); });
 /* ---- quick quote ---- */
 function renderQuote(){
   var code=$("qCode").value.trim(), qty=num($("qQty").value)||1, extra=num($("qExtra").value), res=$("qResult"), chips=$("qChips");
   $("qParts").innerHTML="";
   var pl=partsFor(code);
-  if(pl){ chips.innerHTML=""; renderParts(pl,qty,extra,code); return; }
+  if(pl){ chips.innerHTML=""; renderParts(pl,qty,extra,{parts:$("qParts"),res:res,again:renderQuote,thumbs:true,append:false,id:"qUse"}); return; }
   var d=findDesign(code), st=null, col=0, label="";
   chips.innerHTML="";
   if(d){ st=num(d["Stitch count"]); col=num(d["Colour changes"]); label=d["Design name"]; }

@@ -66,6 +66,22 @@
   <div id="qResult"></div>
 </div>
 
+<!-- ===================== DESIGN SET ===================== -->
+<div class="shell view single" id="v-set">
+  <div class="panel">
+    <button class="btn small ghost" id="sBack" type="button">‹ All sets</button>
+    <div class="eyebrow" id="sEye" style="margin-top:10px"></div>
+    <h2 id="sTitle"></h2>
+    <div class="grid2">
+      <div class="field"><label for="sQty">Blouses</label><input id="sQty" inputmode="numeric" value="1"></div>
+      <div class="field"><label for="sExtra">Extra % (tricky fabric, rush)</label><input id="sExtra" inputmode="decimal" placeholder="0"></div>
+    </div>
+  </div>
+  <div id="sParts"></div>
+  <div id="sResult"></div>
+  <div class="sbar" id="sBar" hidden></div>
+</div>
+
 <!-- ===================== NEW INVOICE ===================== -->
 <div class="shell view" id="v-invoice">
   <div class="tabseg" id="invTabs" role="tablist"><button type="button" data-t="form" aria-pressed="true">Details</button><button type="button" data-t="prev" aria-pressed="false">Preview</button></div>
@@ -148,6 +164,8 @@
     <div class="field"><label for="cToken">Access token</label><input id="cToken" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
     <div class="actions"><button class="btn small primary" id="btnConnect" type="button">Save &amp; test</button></div>
     <p class="hint" id="connMsg">Entered once per device. Treat the token like a password.</p>
+    <div class="actions"><button class="btn small ghost" id="btnShareCfg" type="button">Copy setup link for another device</button></div>
+    <p class="hint">Open that link once on the phone or PC and it connects by itself. Send it only to yourself, because it contains the token.</p>
   </div>
   <div class="panel">
     <h2>Shop details</h2>
@@ -179,15 +197,15 @@
 <div class="shell view single" id="v-designs">
   <div class="panel">
     <div class="eyebrow">Design library</div>
-    <h2>Designs</h2>
-    <div class="grid2">
-      <div class="field"><label for="dSearch">Search</label><input id="dSearch" placeholder="Name or category" autocomplete="off"></div>
-      <div class="field"><label for="dCat">Category</label><select id="dCat" class="sel"></select></div>
-    </div>
+    <h2>Design sets</h2>
+    <div class="field"><label for="dSearch">Search</label><input id="dSearch" placeholder="e.g. G3 or bridal" autocomplete="off" autocapitalize="characters"></div>
+    <div id="dSets" class="chips setchips" role="group" aria-label="Filter by set"></div>
+    <div id="dInline" class="inl"></div><div id="dInlineRes" class="inl"></div>
     <p class="hint" id="dCount"></p>
     <div id="designGrid" class="dgrid"></div>
     <div class="actions"><button class="btn small ghost" id="dMore" type="button" hidden>Show more</button></div>
   </div>
+  <div class="sbar" id="dBar" hidden></div>
 </div>
 
 <!-- ===================== CUSTOMERS ===================== -->
