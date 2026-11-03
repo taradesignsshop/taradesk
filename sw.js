@@ -1,6 +1,6 @@
 // Tara Desk service worker: caches the app shell so it opens offline. API calls are never cached.
-const CACHE = "tara-desk-v10";
-const SHELL = ["./","demo/designs.json","demo/previews/B01.png","demo/previews/B02.png","demo/previews/B03.png","demo/previews/B04.png","demo/previews/B05.png","demo/previews/B06.png","demo/previews/I01.png","demo/previews/I02.png","demo/previews/I03.png","demo/previews/I04.png","demo/previews/I05.png","demo/previews/I06.png","demo/previews/I07.png","demo/previews/I08.png","index.html","styles.css","app.js","manifest.webmanifest","vendor/html2canvas.min.js",
+const CACHE = "tara-desk-v12";
+const SHELL = ["./","demo/designs.json","demo/previews/B01.png","demo/previews/B02.png","demo/previews/B03.png","demo/previews/B04.png","demo/previews/B05.png","demo/previews/B06.png","demo/previews/I01.png","demo/previews/I02.png","demo/previews/I03.png","demo/previews/I04.png","demo/previews/I05.png","demo/previews/I06.png","demo/previews/I07.png","demo/previews/I08.png","index.html","manifest.webmanifest","vendor/html2canvas.min.js",
   "assets/star.png","assets/upi-qr.png","icons/icon-192.png","icons/icon-512.png",
   "fonts/jost-latin-400-normal.woff2","fonts/jost-latin-500-normal.woff2","fonts/jost-latin-600-normal.woff2","fonts/jost-latin-700-normal.woff2",
   "fonts/cormorant-garamond-latin-600-normal.woff2","fonts/cormorant-garamond-latin-700-normal.woff2",
